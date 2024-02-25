@@ -7,6 +7,7 @@ description = ""
 [tool.poetry.dependencies]
 python = "^3.11"
 django = "^5.0.2"
+django-filter = "^23.5"
 django-debug-toolbar = "^4.3.0"
 django-request-logging = "^0.7.5"
 djangorestframework = "^3.14.0"

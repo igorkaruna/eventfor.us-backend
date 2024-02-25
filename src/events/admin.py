@@ -31,7 +31,6 @@ class EventAdmin(admin.ModelAdmin):
     search_fields: tuple[str, ...] = ("id", "name", "creator__username", "location")
     ordering: tuple[str, ...] = ("-created_at",)
     date_hierarchy: tuple[str, ...] = "start_date"
-    raw_id_fields: tuple[str, ...] = ("creator", "category")
 
 
 admin.site.register(EventCategory, EventCategoryAdmin)

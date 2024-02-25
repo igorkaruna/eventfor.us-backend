@@ -22,15 +22,15 @@ class EventCategory(models.Model):
 class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name="event_category")
+    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name="events")
     name = models.CharField(max_length=255)
     status = models.CharField(max_length=25, default=EventStatus.Created, choices=EventStatus.choices())
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=255, db_index=True)
     capacity = models.BigIntegerField()
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         verbose_name: str = "event"

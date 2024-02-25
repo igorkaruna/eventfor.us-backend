@@ -5,7 +5,7 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from base.tests import BaseTestView
+from base.tests import BaseTest
 from events.models import Event
 from events.tests.factories import EventCategoryFactory, EventFactory
 from users.tests.factories import UserFactory
@@ -14,7 +14,9 @@ from users.tests.factories import UserFactory
 pytestmark = pytest.mark.django_db
 
 
-class TestEventView(BaseTestView):
+class TestEvent(BaseTest):
+    endpoint = reverse("event-list")
+
     def test__create_event__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
@@ -25,7 +27,7 @@ class TestEventView(BaseTestView):
 
         with freezegun.freeze_time(datetime(2024, 5, 19, 16, 45)):
             response = api_client.post(
-                reverse("event-list"),
+                self.endpoint,
                 data={
                     "category": str(event_category.id),
                     "name": "Test event",
@@ -69,7 +71,7 @@ class TestEventView(BaseTestView):
         # when
         with freezegun.freeze_time(datetime(2024, 5, 19, 16, 45)):
             response = api_client.post(
-                reverse("event-list"),
+                self.endpoint,
                 data={
                     "category": str(event_category.id),
                     "name": "Test event",
@@ -92,12 +94,13 @@ class TestEventView(BaseTestView):
         events = [EventFactory() for _ in range(5)]
 
         # when
-        response = api_client.get(reverse("event-list"))
+        response = api_client.get(self.endpoint)
 
         # then
         self._common_check(response)
 
-        assert len(response.data) == len(events), "The number of events does not match the expected count"
+        response_data = response.json()
+        assert len(response_data) == len(events), "The number of events does not match the expected count"
 
     def test__retrieve_event__success(self, api_client: APIClient) -> None:
         # given
@@ -192,7 +195,7 @@ class TestEventView(BaseTestView):
         # then
         self._common_check(response, expected_status=403)
 
+        assert Event.objects.count() == 1
+
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
-
-        assert Event.objects.count() == 1

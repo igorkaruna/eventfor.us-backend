@@ -3,14 +3,14 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from base.tests import BaseTestView
+from base.tests import BaseTest
 from users.tests.factories import UserFactory
 
 
 pytestmark = pytest.mark.django_db
 
 
-class TestLogoutView(BaseTestView):
+class TestLogout(BaseTest):
     endpoint = reverse("logout")
 
     def test__logout__success(self, api_client: APIClient) -> None:

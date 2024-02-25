@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 
 
-class BaseTestView:
+class BaseTest:
     endpoint: str = None
 
     @staticmethod

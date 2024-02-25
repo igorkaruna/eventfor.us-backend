@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Model
+from django.db.models import Model, QuerySet
 
 from base.repositories import BaseRepository, ModelType
 from events.models import Event, EventCategory
@@ -17,4 +17,4 @@ class EventCategoryRepository(BaseRepository[EventCategory]):
 
     @classmethod
     def get_all(cls) -> QuerySet[ModelType]:
-        return cls.model.objects.all().order_by("event")
+        return cls.model.objects.all()

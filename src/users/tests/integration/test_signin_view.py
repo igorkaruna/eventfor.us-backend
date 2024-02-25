@@ -2,14 +2,14 @@ import pytest
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
-from base.tests import BaseTestView
+from base.tests import BaseTest
 from users.tests.factories import UserFactory
 
 
 pytestmark = pytest.mark.django_db
 
 
-class TestSignInView(BaseTestView):
+class TestSignIn(BaseTest):
     endpoint = reverse("signin")
 
     def test__sign_in__success(self, api_client: APIClient) -> None:
