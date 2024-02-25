@@ -3,8 +3,11 @@ from django.urls import include, path
 
 from base import settings
 
+
 urlpatterns = [
+    path("", include("events.urls")),
     path("admin/", admin.site.urls),
+    path("users/", include("users.urls")),
 ]
 
 

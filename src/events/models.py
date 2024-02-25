@@ -1,0 +1,40 @@
+from uuid import uuid4
+
+from django.db import models
+
+from events.constants import EventStatus
+from users.models import User
+
+
+class EventCategory(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name: str = "category"
+        verbose_name_plural: str = "categories"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Event(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name="event_category")
+    name = models.CharField(max_length=255)
+    status = models.CharField(max_length=25, default=EventStatus.Created, choices=EventStatus.choices())
+    location = models.CharField(max_length=255)
+    capacity = models.BigIntegerField()
+    description = models.TextField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name: str = "event"
+        verbose_name_plural: str = "events"
+
+    def __str__(self) -> str:
+        return self.name

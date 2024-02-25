@@ -3,6 +3,7 @@ from typing import Generic, Type, TypeVar
 from django.db import models
 from django.db.models import QuerySet
 
+
 ModelType = TypeVar("ModelType", bound=models.Model)
 
 
@@ -12,17 +13,21 @@ class BaseRepository(Generic[ModelType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    def get_all(self) -> QuerySet[ModelType]:
-        return self.model.objects.all()
+    @classmethod
+    def get_all(cls) -> QuerySet[ModelType]:
+        return cls.model.objects.all()
 
-    def get_by_id(self, pk: str) -> ModelType:
-        return self.model.objects.get(pk=pk)
+    @classmethod
+    def get_by_id(cls, pk: str) -> ModelType:
+        return cls.model.objects.get(pk=pk)
 
-    def create(self, **kwargs) -> ModelType:
-        return self.model.objects.create(**kwargs)
+    @classmethod
+    def create(cls, **kwargs) -> ModelType:
+        return cls.model.objects.create(**kwargs)
 
-    def filter(self, **kwargs) -> QuerySet[ModelType]:
-        return self.model.objects.filter(**kwargs)
+    @classmethod
+    def filter(cls, **kwargs) -> QuerySet[ModelType]:
+        return cls.model.objects.filter(**kwargs)
 
     @staticmethod
     def update(instance: ModelType, **kwargs) -> ModelType:
