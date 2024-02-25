@@ -1,0 +1,77 @@
+name: continuous-integration
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: eventfor.us-backend
+
+    env:
+      # vars
+      PYTHONPATH: ${{ vars.PYTHONPATH }}
+      PYTHONUNBUFFERED: ${{ vars.PYTHONUNBUFFERED }}
+
+      DEBUG: ${{ vars.DEBUG }}
+      ALLOWED_HOSTS: ${{ vars.ALLOWED_HOSTS }}
+      INTERNAL_IPS: ${{ vars.INTERNAL_IPS }}
+      POSTGRES_ENGINE: ${{ vars.POSTGRES_ENGINE }}
+
+      # secrets
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install Poetry
+      run: |
+        pip install poetry
+
+    - name: Install dependencies
+      run: |
+        poetry export -f requirements.txt --output requirements.txt --without-hashes
+        pip install --no-cache-dir -r requirements.txt
+
+    - name: Run linter
+      run: |
+        flake8 src --config src/.flake8
+
+    - name: Make & Apply migrations
+      run: |
+        python src/manage.py makemigrations
+        python src/manage.py migrate
+
+    - name: Django check
+      run: |
+        python src/manage.py check
+
+    - name: Run tests
+      run: |
+        pytest src --cache-clear -p no:warnings -x
