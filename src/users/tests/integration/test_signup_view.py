@@ -27,7 +27,7 @@ class TestSignUp(BaseTest):
         # then
         self._common_check(response, expected_status=201)
 
-        created_user = UserRepository.get_by_email(email="john@jhondoe.com")
+        created_user = UserRepository.get(email="john@jhondoe.com")
         assert created_user, "User was expected to be created"
 
         response_data = response.json()

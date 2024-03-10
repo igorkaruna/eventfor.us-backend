@@ -32,3 +32,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.get_full_name()
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    saved_events = models.ManyToManyField("events.Event", related_name="saved_by_user")
+
+    class Meta:
+        verbose_name: str = "user profile"
+        verbose_name_plural: str = "user profiles"

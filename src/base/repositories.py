@@ -2,6 +2,7 @@ from typing import Generic, Type, TypeVar
 
 from django.db import models
 from django.db.models import QuerySet
+from django.shortcuts import get_object_or_404
 
 
 ModelType = TypeVar("ModelType", bound=models.Model)
@@ -12,6 +13,10 @@ class BaseRepository(Generic[ModelType]):
 
     def __init__(self, model: Type[ModelType]):
         self.model = model
+
+    @classmethod
+    def get(cls, **kwargs) -> ModelType:
+        return get_object_or_404(cls.model, **kwargs)
 
     @classmethod
     def get_all(cls) -> QuerySet[ModelType]:

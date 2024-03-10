@@ -2,7 +2,7 @@ import factory
 from django.db.models import Model
 from factory.django import DjangoModelFactory
 
-from users.models import User
+from users.models import User, UserProfile
 
 
 class UserFactory(DjangoModelFactory):
@@ -13,3 +13,17 @@ class UserFactory(DjangoModelFactory):
     first_name: str = factory.Faker("first_name")
     last_name: str = factory.Faker("last_name")
     password: str = factory.PostGenerationMethodCall("set_password", "abc123")
+
+    @factory.post_generation
+    def post_create(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        UserProfileFactory(user=self)
+
+
+class UserProfileFactory(DjangoModelFactory):
+    class Meta:
+        model: Model = UserProfile
+
+    user: User = factory.SubFactory(UserFactory)

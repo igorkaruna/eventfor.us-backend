@@ -6,3 +6,8 @@ class EventStatus(BaseConstant):
     Canceled = "canceled"
     OnGoing = "ongoing"
     Completed = "completed"
+
+
+class SaveEventConstant(BaseConstant):
+    Saved = "Saved"
+    Removed = "Removed"

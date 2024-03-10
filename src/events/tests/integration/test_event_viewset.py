@@ -6,6 +6,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from base.tests import BaseTest
+from events.constants import SaveEventConstant
 from events.models import Event
 from events.tests.factories import EventCategoryFactory, EventFactory
 from users.tests.factories import UserFactory
@@ -199,3 +200,36 @@ class TestEvent(BaseTest):
 
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
+
+    def test_toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
+        # given
+        user = UserFactory()
+        event = EventFactory()
+
+        # when
+        api_client.force_authenticate(user)
+
+        response = api_client.post(reverse("event-toggle-save", args=[str(event.id)]))
+
+        # then
+        self._common_check(response)
+
+        user.refresh_from_db()
+        assert user.profile.saved_events.count() == 1, "Expected one event to be saved"
+
+        response_data = response.json()
+        assert response_data["event_id"] == str(event.id)
+        assert response_data["action"] in {SaveEventConstant.Saved, SaveEventConstant.Removed}
+
+    def test_toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
+        # given
+        event = EventFactory()
+
+        # when
+        response = api_client.post(reverse("event-toggle-save", args=[str(event.id)]))
+
+        # then
+        self._common_check(response, expected_status=401)
+
+        response_data = response.json()
+        assert response_data["detail"] == "Authentication credentials were not provided."

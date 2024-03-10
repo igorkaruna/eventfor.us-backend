@@ -1,6 +1,6 @@
 import pytest
 
-from users.models import User
+from users.models import User, UserProfile
 from users.repositories import UserRepository
 
 
@@ -23,7 +23,8 @@ def test__user_creation():
     )
 
     # then
-    assert User.objects.count() == 1, "There should be only one user created"
+    assert User.objects.count() == 1, "Only one user should be created"
+    assert UserProfile.objects.count() == 1, "Only one user profile should be created"
 
     created_user = User.objects.get(id=user.id)
     assert created_user, "User with specified id should be created in the database"
