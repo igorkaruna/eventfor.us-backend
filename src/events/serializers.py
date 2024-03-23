@@ -4,6 +4,7 @@ from django.db.models import Model
 from rest_framework import serializers
 
 from events.models import Event, EventCategory
+from events.repositories import EventCategoryRepository
 from users.serializers import UserSerializer
 
 
@@ -16,7 +17,7 @@ class EventCategorySerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
     category = serializers.PrimaryKeyRelatedField(
-        queryset=EventCategory.objects.all(),
+        queryset=EventCategoryRepository.get_all(),
         write_only=True,
     )
 

@@ -8,6 +8,11 @@ class EventStatus(BaseConstant):
     Completed = "completed"
 
 
-class SaveEventConstant(BaseConstant):
+class EventAttendanceIntent(BaseConstant):
+    Reserved = "Reserved"
+    Canceled = "Canceled"
+
+
+class EventSaveAction(BaseConstant):
     Saved = "Saved"
     Removed = "Removed"

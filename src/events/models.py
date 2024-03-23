@@ -38,3 +38,18 @@ class Event(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class EventAttendance(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendance")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name: str = "attendance"
+        verbose_name_plural: str = "attendances"
+        constraints = [models.UniqueConstraint(fields=["user", "event"], name="unique_user_event_attendance")]
+
+    def __str__(self) -> str:
+        return f"{self.user} attends {self.event}"

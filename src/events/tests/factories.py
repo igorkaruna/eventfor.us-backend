@@ -1,4 +1,4 @@
-from typing import Any
+from datetime import timedelta
 
 import factory
 from django.db.models import Model
@@ -6,7 +6,7 @@ from django.utils import timezone
 from factory.django import DjangoModelFactory
 
 from events.constants import EventStatus
-from events.models import Event, EventCategory
+from events.models import Event, EventAttendance, EventCategory
 from users.models import User
 from users.tests.factories import UserFactory
 
@@ -30,5 +30,14 @@ class EventFactory(DjangoModelFactory):
     location: str = factory.Faker("address")
     capacity: int = factory.Faker("random_int", min=0, max=10000)
     description: str = factory.Faker("paragraph")
-    start_date: Any = factory.LazyFunction(timezone.now().date)
-    end_date: Any = factory.LazyFunction(lambda: (timezone.now() + timezone.timedelta(days=1)).date())
+    start_date = factory.LazyFunction(lambda: timezone.now().date() + timedelta(days=1))
+    end_date = factory.LazyFunction(lambda: (timezone.now() + timedelta(days=2)).date())
+
+
+class EventAttendanceFactory(DjangoModelFactory):
+    class Meta:
+        model = EventAttendance
+
+    user: User = factory.SubFactory(UserFactory)
+    event: Event = factory.SubFactory(EventFactory)
+    timestamp = factory.LazyFunction(timezone.now)

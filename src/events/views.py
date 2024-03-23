@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from events.constants import SaveEventConstant
+from events.constants import EventAttendanceIntent, EventSaveAction
 from events.filters import EventFilter
 from events.permissions import IsEventCreator
 from events.repositories import EventRepository
@@ -21,9 +21,41 @@ class EventViewSet(ModelViewSet):
     def perform_create(self, serializer: EventSerializer) -> None:
         serializer.save(creator=self.request.user)
 
-    @action(detail=True, methods=["POST"], permission_classes=(IsAuthenticated,))
-    def toggle_save(self, request: Request, pk: str = None) -> Response:
-        event = self.get_object()
-        event_saved = UserProfileRepository.toggle_save_event(self.request.user.profile, event)
-        toggle_action = SaveEventConstant.Saved if event_saved else SaveEventConstant.Removed
-        return Response({"event_id": event.id, "action": toggle_action}, status=200)
+    @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
+    def attend(self, request: Request, pk: str = None) -> Response:
+        event = EventRepository.get_open_event_for_attendance(event_id=pk)
+
+        if not event:
+            return Response(
+                {
+                    "event_id": pk,
+                    "detail": "The event is not open for attendance.",
+                },
+                status=400,
+            )
+
+        event_participated = EventRepository.toggle_attendance(user=request.user, event=event)
+        attendance_intent = EventAttendanceIntent.Reserved if event_participated else EventAttendanceIntent.Canceled
+
+        return Response(
+            {
+                "event_id": event.id,
+                "detail": f"Attendance {attendance_intent.lower()}.",
+            },
+            status=200,
+        )
+
+    @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
+    def toggle_save(self, request: Request, pk: str) -> Response:
+        event = EventRepository.get(id=pk)
+
+        event_saved = UserProfileRepository.toggle_save_event(profile=request.user.profile, event=event)
+        toggle_action = EventSaveAction.Saved if event_saved else EventSaveAction.Removed
+
+        return Response(
+            {
+                "event_id": event.id,
+                "detail": f"Event {toggle_action.lower()} successfully.",
+            },
+            status=200,
+        )

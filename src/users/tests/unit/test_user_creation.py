@@ -26,7 +26,7 @@ def test__user_creation():
     assert User.objects.count() == 1, "Only one user should be created"
     assert UserProfile.objects.count() == 1, "Only one user profile should be created"
 
-    created_user = User.objects.get(id=user.id)
+    created_user = UserRepository.get(id=user.id)
     assert created_user, "User with specified id should be created in the database"
     assert created_user.is_active, "User should be active by default"
     assert not created_user.is_verified, "User shouldn't be verified by default"
@@ -51,7 +51,7 @@ def test__super_user_creation():
     # then
     assert User.objects.count() == 1, "There should be only one user created"
 
-    created_superuser = User.objects.get(id=superuser.id)
+    created_superuser = UserRepository.get(id=superuser.id)
     assert created_superuser, "User with specified id should be created in the database"
     assert created_superuser.is_active, "Superuser should be active by default"
     assert created_superuser.is_verified, "Superuser should be verified by default"

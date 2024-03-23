@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 import freezegun
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from base.tests import BaseTest
-from events.constants import SaveEventConstant
+from events.constants import EventAttendanceIntent, EventSaveAction
 from events.models import Event
+from events.repositories import EventAttendanceRepository
 from events.tests.factories import EventCategoryFactory, EventFactory
 from users.tests.factories import UserFactory
 
@@ -108,7 +110,12 @@ class TestEvent(BaseTest):
         event = EventFactory()
 
         # when
-        response = api_client.get(reverse("event-detail", args=[str(event.id)]))
+        response = api_client.get(
+            reverse(
+                "event-detail",
+                args=[str(event.id)],
+            )
+        )
 
         # then
         self._common_check(response)
@@ -171,7 +178,12 @@ class TestEvent(BaseTest):
         # when
         api_client.force_authenticate(creator)
 
-        response = api_client.delete(reverse("event-detail", args=[str(event.id)]))
+        response = api_client.delete(
+            reverse(
+                "event-detail",
+                args=[str(event.id)],
+            )
+        )
 
         # then
         self._common_check(
@@ -191,7 +203,12 @@ class TestEvent(BaseTest):
         api_client.force_authenticate(guest)
 
         # when
-        response = api_client.delete(reverse("event-detail", args=[str(event.id)]))
+        response = api_client.delete(
+            reverse(
+                "event-detail",
+                args=[str(event.id)],
+            )
+        )
 
         # then
         self._common_check(response, expected_status=403)
@@ -201,25 +218,119 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
 
+    def test_attend_event__authenticated_user__success(self, api_client: APIClient) -> None:
+        # given
+        user = UserFactory()
+        event = EventFactory()
+
+        # when attend
+        api_client.force_authenticate(user)
+
+        response_attend = api_client.post(
+            reverse(
+                "event-attend",
+                args=[str(event.id)],
+            )
+        )
+
+        # then
+        self._common_check(response_attend)
+
+        response_data_attend = response_attend.json()
+        assert response_data_attend["event_id"] == str(event.id)
+        assert response_data_attend["detail"] == f"Attendance {EventAttendanceIntent.Reserved.lower()}."
+
+        assert EventAttendanceRepository.is_user_attending_event(
+            user=user,
+            event=event,
+        ), "User should be marked as attending the event"
+
+        # when cancel reservation
+        response_cancel = api_client.post(
+            reverse(
+                "event-attend",
+                args=[str(event.id)],
+            )
+        )
+
+        # then
+        self._common_check(response_cancel)
+
+        assert not EventAttendanceRepository.is_user_attending_event(
+            user=user,
+            event=event,
+        ), "User should no longer be marked as attending the event"
+
+        response_data_cancel = response_cancel.json()
+        assert response_data_cancel["event_id"] == str(event.id)
+        assert response_data_cancel["detail"] == f"Attendance {EventAttendanceIntent.Canceled.lower()}."
+
+    def test_event_not_open_for_attendance(self, api_client: APIClient):
+        # given
+        user = UserFactory()
+        event = EventFactory(
+            start_date=timezone.now() - timedelta(days=2),
+            end_date=timezone.now() - timedelta(days=1),
+        )
+
+        # when
+        api_client.force_authenticate(user)
+        response = api_client.post(
+            reverse(
+                "event-attend",
+                args=[str(event.id)],
+            )
+        )
+
+        # then
+        self._common_check(response, expected_status=400)
+
+        response_data = response.json()
+        assert response_data["event_id"] == str(event.id)
+        assert response_data["detail"] == "The event is not open for attendance."
+
     def test_toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
         event = EventFactory()
 
-        # when
+        # when toggle save
         api_client.force_authenticate(user)
 
-        response = api_client.post(reverse("event-toggle-save", args=[str(event.id)]))
+        response_save = api_client.post(
+            reverse(
+                "event-toggle-save",
+                args=[str(event.id)],
+            )
+        )
 
         # then
-        self._common_check(response)
+        self._common_check(response_save)
 
         user.refresh_from_db()
         assert user.profile.saved_events.count() == 1, "Expected one event to be saved"
 
-        response_data = response.json()
-        assert response_data["event_id"] == str(event.id)
-        assert response_data["action"] in {SaveEventConstant.Saved, SaveEventConstant.Removed}
+        response_data_save = response_save.json()
+        assert response_data_save["event_id"] == str(event.id)
+        assert response_data_save["detail"] == f"Event {EventSaveAction.Saved.lower()} successfully."
+
+        # when toggle unsave
+        response_unsave = api_client.post(
+            reverse(
+                "event-toggle-save",
+                args=[str(event.id)],
+            )
+        )
+
+        # then
+        self._common_check(response_unsave)
+
+        user.refresh_from_db()
+        assert user.profile.saved_events.count() == 0, "Expected no events to be saved after untoggling"
+
+        response_data_unsave = response_unsave.json()
+        assert response_data_unsave["event_id"] == str(event.id)
+        assert response_data_unsave["detail"] == f"Event {EventSaveAction.Removed.lower()} successfully."
 
     def test_toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
         # given

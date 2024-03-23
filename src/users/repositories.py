@@ -36,11 +36,11 @@ class UserProfileRepository(BaseRepository[UserProfile]):
 
     @classmethod
     def toggle_save_event(cls, profile: UserProfile, event: Event) -> bool:
-        already_saved = profile.saved_events.filter(id=event.id).exists()
+        saved_event_exists = profile.saved_events.filter(id=event.id).exists()
 
-        if already_saved:
+        if saved_event_exists:
             profile.saved_events.remove(event)
         else:
             profile.saved_events.add(event)
 
-        return not already_saved
+        return not saved_event_exists
