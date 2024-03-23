@@ -102,7 +102,7 @@ class TestEvent(BaseTest):
         # then
         self._common_check(response)
 
-        response_data = response.json()
+        response_data = response.json()["results"]
         assert len(response_data) == len(events), "The number of events does not match the expected count"
 
     def test__retrieve_event__success(self, api_client: APIClient) -> None:

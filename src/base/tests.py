@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rest_framework.response import Response
 
 
@@ -8,7 +10,7 @@ class BaseTest:
     def _common_check(
         response: Response,
         expected_status: int = 200,
-        expected_content_type: str = "application/json",
+        expected_content_type: Optional[str] = "application/json",
     ) -> None:
         """
         Check the response's status code and content type.

@@ -30,7 +30,7 @@ class TestEventFilter(BaseTest):
         # then
         self._common_check(response)
 
-        response_data = response.json()
+        response_data = response.json()["results"]
         assert len(response_data) == 1, f"Expected only one event in category: {sports_category.name}"
 
     def test_filter_by_creator(self, api_client: APIClient) -> None:
@@ -50,7 +50,7 @@ class TestEventFilter(BaseTest):
         # then
         self._common_check(response)
 
-        response_data = response.json()
+        response_data = response.json()["results"]
         assert len(response_data) == 1, f"Expected only one event created by {creator_john.first_name}"
 
     def test_filter_by_location_contains(self, api_client: APIClient) -> None:
@@ -67,7 +67,7 @@ class TestEventFilter(BaseTest):
         # then
         self._common_check(response)
 
-        response_data = response.json()
+        response_data = response.json()["results"]
         assert len(response_data) == 2, "Expected two events with location 'USA'"
 
     def test_filter_by_start_date_gte(self, api_client: APIClient) -> None:
@@ -84,5 +84,5 @@ class TestEventFilter(BaseTest):
         # then
         self._common_check(response)
 
-        response_data = response.json()
+        response_data = response.json()["results"]
         assert len(response_data) == 1, "Expected only one event with start_date >= '2024-08-28'"
