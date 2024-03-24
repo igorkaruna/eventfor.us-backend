@@ -1,13 +1,23 @@
-FROM python:3.11-slim as requirements-stage
+FROM python:3.11-slim as base
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+
+FROM base as requirements-stage
 
 WORKDIR /tmp
 
 RUN pip install poetry
+
 COPY ./pyproject.toml ./poetry.lock /tmp/
 RUN poetry export --output requirements.txt
 
 
-FROM python:3.11-slim as builder
+FROM base as development
 
 WORKDIR /src
 

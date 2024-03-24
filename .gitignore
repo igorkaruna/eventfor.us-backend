@@ -136,6 +136,9 @@ cython_debug/
 # PyCharm
 .idea/
 
+# local
 logs/
+static/
+media/
 **/migrations/*.py
 !**/migrations/__init__.py

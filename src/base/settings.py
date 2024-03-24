@@ -17,6 +17,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 INTERNAL_IPS = env.list("INTERNAL_IPS")
 
 INSTALLED_APPS = [
+    # default
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # default
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -63,25 +65,35 @@ TEMPLATES = [
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 AUTH_USER_MODEL = "users.User"
 
 with env.prefixed("POSTGRES_"):
-    DATABASES = {
-        "default": {
-            "ENGINE": env.str("ENGINE"),
-            "NAME": env.str("DB"),
-            "USER": env.str("USER"),
-            "PASSWORD": env.str("PASSWORD"),
-            "HOST": env.str("HOST"),
-            "PORT": env.str("PORT"),
-        }
+    POSTGRES_DATABASE = {
+        "ENGINE": env.str("ENGINE"),
+        "NAME": env.str("DB"),
+        "USER": env.str("USER"),
+        "PASSWORD": env.str("PASSWORD"),
+        "HOST": env.str("HOST"),
+        "PORT": env.str("PORT"),
     }
+
+DATABASES = {
+    "default": POSTGRES_DATABASE,
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ROOT_URLCONF = "base.urls"
@@ -91,7 +103,13 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 WSGI_APPLICATION = "base.wsgi.application"
 
 LOG_DIR = os.path.join(BASE_DIR, "logs")
@@ -141,6 +159,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)
+
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=365),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
@@ -159,3 +181,13 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
 }
+
+with env.prefixed("SECURE_"):
+    SECURE_SSL_REDIRECT = env.bool("SSL_REDIRECT", default=False)
+    SECURE_HSTS_SECONDS = env.int("HSTS_SECONDS", default=0)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("HSTS_INCLUDE_SUBDOMAINS", default=False)
+    SECURE_HSTS_PRELOAD = env.bool("HSTS_PRELOAD", default=False)
+    SECURE_CONTENT_TYPE_NOSNIFF = env.bool("CONTENT_TYPE_NOSNIFF", default=False)
+    SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE", default=False)
+    CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE", default=False)
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
