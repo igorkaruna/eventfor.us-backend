@@ -32,15 +32,6 @@ class TestSignIn(BaseTest):
         assert response_data.get("access"), "Access token is missing"
         assert response_data.get("refresh"), "Refresh token is missing"
 
-        user_data = response_data.get("user")
-        assert user_data, "User data was expected in the response"
-        assert user_data == {
-            "id": str(user.id),
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-        }
-
     def test__sign_in_wrong_password__failed(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()

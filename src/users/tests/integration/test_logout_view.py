@@ -10,7 +10,7 @@ from users.tests.factories import UserFactory
 pytestmark = pytest.mark.django_db
 
 
-class TestLogout(BaseTest):
+class TestLogoutView(BaseTest):
     endpoint = reverse("logout")
 
     def test__logout__success(self, api_client: APIClient) -> None:

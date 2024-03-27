@@ -39,5 +39,5 @@ class UserProfile(models.Model):
     saved_events = models.ManyToManyField("events.Event", related_name="saved_by_user")
 
     class Meta:
-        verbose_name: str = "user profile"
-        verbose_name_plural: str = "user profiles"
+        verbose_name = "user profile"
+        verbose_name_plural = "user profiles"

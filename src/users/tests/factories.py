@@ -1,5 +1,4 @@
 import factory
-from django.db.models import Model
 from factory.django import DjangoModelFactory
 
 from users.models import User, UserProfile
@@ -7,7 +6,7 @@ from users.models import User, UserProfile
 
 class UserFactory(DjangoModelFactory):
     class Meta:
-        model: Model = User
+        model = User
 
     email: str = factory.Faker("email")
     first_name: str = factory.Faker("first_name")
@@ -24,6 +23,6 @@ class UserFactory(DjangoModelFactory):
 
 class UserProfileFactory(DjangoModelFactory):
     class Meta:
-        model: Model = UserProfile
+        model = UserProfile
 
     user: User = factory.SubFactory(UserFactory)

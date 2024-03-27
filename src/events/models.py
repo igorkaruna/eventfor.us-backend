@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from events.constants import EventStatus
@@ -12,8 +13,8 @@ class EventCategory(models.Model):
     description = models.TextField(blank=True, null=True)
 
     class Meta:
-        verbose_name: str = "category"
-        verbose_name_plural: str = "categories"
+        verbose_name = "category"
+        verbose_name_plural = "categories"
 
     def __str__(self) -> str:
         return self.name
@@ -26,7 +27,7 @@ class Event(models.Model):
     name = models.CharField(max_length=255)
     status = models.CharField(max_length=25, default=EventStatus.Created, choices=EventStatus.choices())
     location = models.CharField(max_length=255, db_index=True)
-    capacity = models.BigIntegerField()
+    capacity = models.BigIntegerField(validators=[MinValueValidator(0)])
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
@@ -47,8 +48,8 @@ class EventAttendance(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name: str = "attendance"
-        verbose_name_plural: str = "attendances"
+        verbose_name = "attendance"
+        verbose_name_plural = "attendances"
         constraints = [models.UniqueConstraint(fields=["user", "event"], name="unique_user_event_attendance")]
 
     def __str__(self) -> str:

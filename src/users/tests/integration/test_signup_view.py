@@ -9,7 +9,7 @@ from users.repositories import UserRepository
 pytestmark = pytest.mark.django_db
 
 
-class TestSignUp(BaseTest):
+class TestSignUpView(BaseTest):
     endpoint = reverse("signup")
 
     def test__sign_up__success(self, api_client: APIClient) -> None:
