@@ -9,12 +9,52 @@ env = Env()
 env.read_env(override=True)
 
 
+# ENV configurations
+
+with env.prefixed("POSTGRES_"):
+    POSTGRES_DATABASE = {
+        "ENGINE": env.str("ENGINE"),
+        "NAME": env.str("DB"),
+        "USER": env.str("USER"),
+        "PASSWORD": env.str("PASSWORD"),
+        "HOST": env.str("HOST"),
+        "PORT": env.str("PORT"),
+    }
+
+with env.prefixed("JWT_"):
+    JWT_CONFIGURATION = {
+        "ACCESS_TOKEN_LIFETIME_DAYS": env.int("ACCESS_TOKEN_LIFETIME_DAYS"),
+        "REFRESH_TOKEN_LIFETIME_DAYS": env.int("REFRESH_TOKEN_LIFETIME_DAYS"),
+    }
+
+with env.prefixed("SECURE_"):
+    SECURITY_CONFIGURATION = {
+        "SSL_REDIRECT": env.bool("SSL_REDIRECT"),
+        "HSTS_SECONDS": env.int("HSTS_SECONDS"),
+        "HSTS_INCLUDE_SUBDOMAINS": env.bool("HSTS_INCLUDE_SUBDOMAINS"),
+        "HSTS_PRELOAD": env.bool("HSTS_PRELOAD"),
+        "CONTENT_TYPE_NOSNIFF": env.bool("CONTENT_TYPE_NOSNIFF"),
+        "SESSION_COOKIE": env.bool("SESSION_COOKIE"),
+        "CSRF_COOKIE": env.bool("CSRF_COOKIE"),
+        "REFERRER_POLICY": env.str("REFERRER_POLICY"),
+    }
+
+
+with env.prefixed("LOGGER_"):
+    LOGGER_CONFIGURATION = {
+        "CONSOLE_LEVEL": env.str("CONSOLE_LEVEL"),
+        "FILE_LEVEL": env.str("FILE_LEVEL"),
+    }
+
+# Django settings
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env.str("SECRET_KEY")
 DEBUG = env.bool("DEBUG")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 INTERNAL_IPS = env.list("INTERNAL_IPS")
+
 
 INSTALLED_APPS = [
     # default
@@ -80,37 +120,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = "users.User"
-
-with env.prefixed("POSTGRES_"):
-    POSTGRES_DATABASE = {
-        "ENGINE": env.str("ENGINE"),
-        "NAME": env.str("DB"),
-        "USER": env.str("USER"),
-        "PASSWORD": env.str("PASSWORD"),
-        "HOST": env.str("HOST"),
-        "PORT": env.str("PORT"),
-    }
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LANGUAGE_CODE = "en-us"
+ROOT_URLCONF = "base.urls"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_URL = "/static/"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+WSGI_APPLICATION = "base.wsgi.application"
 
 DATABASES = {
     "default": POSTGRES_DATABASE,
 }
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-ROOT_URLCONF = "base.urls"
-
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
-USE_I18N = True
-USE_TZ = True
-
-
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-WSGI_APPLICATION = "base.wsgi.application"
+# Logger
 
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 
@@ -128,14 +152,14 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": LOGGER_CONFIGURATION["CONSOLE_LEVEL"],
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
         "file": {
-            "level": "INFO",
+            "level": LOGGER_CONFIGURATION["FILE_LEVEL"],
             "class": "logging.FileHandler",
-            "filename": os.path.join(LOG_DIR, "backend.log"),
+            "filename": os.path.join(LOG_DIR, "eventfor.log"),
             "formatter": "verbose",
         },
     },
@@ -148,6 +172,8 @@ LOGGING = {
     },
 }
 
+# Rest Framework and DJT settings
+
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG,
 }
@@ -156,38 +182,30 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": env.int("PAGE_SIZE"),
 }
 
 if not DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)
 
+# JWT settings
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=365),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=JWT_CONFIGURATION["ACCESS_TOKEN_LIFETIME_DAYS"]),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=JWT_CONFIGURATION["REFRESH_TOKEN_LIFETIME_DAYS"]),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": None,
-    "AUDIENCE": None,
-    "ISSUER": None,
     "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
 }
 
-with env.prefixed("SECURE_"):
-    SECURE_SSL_REDIRECT = env.bool("SSL_REDIRECT", default=False)
-    SECURE_HSTS_SECONDS = env.int("HSTS_SECONDS", default=0)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("HSTS_INCLUDE_SUBDOMAINS", default=False)
-    SECURE_HSTS_PRELOAD = env.bool("HSTS_PRELOAD", default=False)
-    SECURE_CONTENT_TYPE_NOSNIFF = env.bool("CONTENT_TYPE_NOSNIFF", default=False)
-    SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE", default=False)
-    CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE", default=False)
-    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+# Security settings
+
+SECURE_SSL_REDIRECT = SECURITY_CONFIGURATION["SSL_REDIRECT"]
+SECURE_HSTS_SECONDS = SECURITY_CONFIGURATION["HSTS_SECONDS"]
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURITY_CONFIGURATION["HSTS_INCLUDE_SUBDOMAINS"]
+SECURE_HSTS_PRELOAD = SECURITY_CONFIGURATION["HSTS_PRELOAD"]
+SECURE_CONTENT_TYPE_NOSNIFF = SECURITY_CONFIGURATION["CONTENT_TYPE_NOSNIFF"]
+SESSION_COOKIE_SECURE = SECURITY_CONFIGURATION["SESSION_COOKIE"]
+CSRF_COOKIE_SECURE = SECURITY_CONFIGURATION["CSRF_COOKIE"]
+SECURE_REFERRER_POLICY = SECURITY_CONFIGURATION["REFERRER_POLICY"]

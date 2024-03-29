@@ -1,6 +1,6 @@
 FROM python:3.11-slim as base
 
-WORKDIR /src
+ENV APP_HOME=/src
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -8,28 +8,25 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --shell /usr/sbin/nologin appuser
 
-
-FROM base as requirements-stage
+FROM base as builder
 
 WORKDIR /tmp
 
 RUN pip install --no-cache-dir poetry
 
 COPY ./pyproject.toml ./poetry.lock* /tmp/
-RUN poetry export --without-hashes -f requirements.txt --output requirements.txt --no-interaction --no-ansi
+RUN poetry export --without-hashes -f requirements.txt \
+    --output requirements.txt \
+    --no-interaction --no-ansi
 
 
 FROM base as production
 
-WORKDIR /src
+WORKDIR $APP_HOME
 
-USER appuser
+COPY --from=builder /tmp/requirements.txt $APP_HOME/
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --from=requirements-stage --chown=appuser:appuser /tmp/requirements.txt /src/
-RUN pip install --no-cache-dir --user -r /src/requirements.txt
+COPY . $APP_HOME
 
-COPY --chown=appuser:appuser . /src
-
-ENV PATH="/home/appuser/.local/bin:${PATH}"
