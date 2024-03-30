@@ -86,6 +86,8 @@ MIDDLEWARE = [
     # 3-rd party
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "request_logging.middleware.LoggingMiddleware",
+    # local
+    "base.middlewares.ExceptionHandlingMiddleware",
 ]
 
 TEMPLATES = [
@@ -146,7 +148,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
+            "format": "{levelname} {asctime} {module} {detail}",
             "style": "{",
         },
     },

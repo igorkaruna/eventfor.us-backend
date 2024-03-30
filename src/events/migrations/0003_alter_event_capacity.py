@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0002_initial'),
+        ("events", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='capacity',
+            model_name="event",
+            name="capacity",
             field=models.BigIntegerField(validators=[django.core.validators.MinValueValidator(0)]),
         ),
     ]

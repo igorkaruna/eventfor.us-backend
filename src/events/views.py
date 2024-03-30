@@ -4,6 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from base.utils import build_response
 from events.constants import EventAttendanceIntent, EventSaveAction
 from events.filters import EventFilter
 from events.permissions import IsEventCreator
@@ -24,26 +25,13 @@ class EventViewSet(ModelViewSet):
     @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
     def attend(self, request: Request, pk: str = None) -> Response:
         event = EventRepository.get_open_event_for_attendance(event_id=pk)
-
         if not event:
-            return Response(
-                {
-                    "event_id": pk,
-                    "detail": "The event is not open for attendance.",
-                },
-                status=400,
-            )
+            return build_response(detail="The event is not open for attendance.", status=400)
 
         event_participated = EventRepository.toggle_attendance(user=request.user, event=event)
         attendance_intent = EventAttendanceIntent.Reserved if event_participated else EventAttendanceIntent.Canceled
 
-        return Response(
-            {
-                "event_id": event.id,
-                "detail": f"Attendance {attendance_intent.lower()}.",
-            },
-            status=200,
-        )
+        return build_response(detail=f"Attendance {attendance_intent.lower()}.")
 
     @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
     def toggle_save(self, request: Request, pk: str) -> Response:
@@ -52,10 +40,4 @@ class EventViewSet(ModelViewSet):
         event_saved = UserProfileRepository.toggle_save_event(profile=request.user.profile, event=event)
         toggle_action = EventSaveAction.Saved if event_saved else EventSaveAction.Removed
 
-        return Response(
-            {
-                "event_id": event.id,
-                "detail": f"Event {toggle_action.lower()} successfully.",
-            },
-            status=200,
-        )
+        return build_response(detail=f"Event {toggle_action.lower()} successfully.")

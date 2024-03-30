@@ -1,10 +1,10 @@
 from rest_framework.generics import CreateAPIView, GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from base.utils import build_response
 from events.serializers import EventSerializer
 from users.repositories import UserProfileRepository, UserRepository
 from users.serializers import LogoutSerializer, SignUpSerializer, UserSerializer
@@ -28,7 +28,7 @@ class LogoutView(GenericAPIView):
 
         refresh_token = serializer.validated_data["refresh_token"]
         RefreshToken(token=refresh_token).blacklist()
-        return Response(status=204)
+        return build_response(detail="Refresh token was successfully blacklisted.")
 
 
 class GetUserView(RetrieveAPIView):
