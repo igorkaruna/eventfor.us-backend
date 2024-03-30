@@ -70,28 +70,29 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install Poetry
+    - name: Cache Poetry virtualenv
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
+    - name: Install and configure Poetry
       run: |
         pip install poetry
+        poetry config virtualenvs.create false
 
     - name: Install dependencies
-      run: |
-        poetry export -f requirements.txt --output requirements.txt --without-hashes
-        pip install --no-cache-dir -r requirements.txt
+      run: poetry install --no-interaction --no-root
 
-    - name: Run linter
+    - name: Run quality checks
       run: |
         flake8 src --config src/.flake8
-
-    - name: Make & Apply migrations
-      run: |
-        python src/manage.py makemigrations
-        python src/manage.py migrate
-
-    - name: Django check
-      run: |
         python src/manage.py check
 
+    - name: Apply migrations
+      run: python src/manage.py migrate
+
     - name: Run tests
-      run: |
-        pytest src --cache-clear -p no:warnings -x
+      run: pytest src --cache-clear -p no:warnings -x

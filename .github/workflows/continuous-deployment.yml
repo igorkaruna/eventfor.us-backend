@@ -48,5 +48,4 @@ jobs:
 
       - name: Cleanup SSH environment
         if: always()
-        run: |
-          rm -rf $HOME/.ssh
+        run: rm -rf $HOME/.ssh
