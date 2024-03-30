@@ -1,6 +1,7 @@
-name: continuous-integration
+name: Continuous Integration
 
-on: [push]
+on:
+  pull_request:
 
 jobs:
   build:
@@ -10,22 +11,41 @@ jobs:
       name: eventfor.us-backend
 
     env:
-      # vars
       PYTHONPATH: ${{ vars.PYTHONPATH }}
       PYTHONUNBUFFERED: ${{ vars.PYTHONUNBUFFERED }}
 
+      # General Settings
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+      INTERNAL_IPS: ${{ secrets.INTERNAL_IPS }}
       DEBUG: ${{ vars.DEBUG }}
-      ALLOWED_HOSTS: ${{ vars.ALLOWED_HOSTS }}
-      INTERNAL_IPS: ${{ vars.INTERNAL_IPS }}
-      POSTGRES_ENGINE: ${{ vars.POSTGRES_ENGINE }}
-
-      # secrets
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      PAGE_SIZE: ${{ vars.PAGE_SIZE }}
+
+      # Database settings
+      POSTGRES_ENGINE: ${{ vars.POSTGRES_ENGINE }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
       POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+      # Security Settings
+      SECURE_SSL_REDIRECT: ${{ vars.SECURE_SSL_REDIRECT }}
+      SECURE_HSTS_SECONDS: ${{ vars.SECURE_HSTS_SECONDS }}
+      SECURE_HSTS_PRELOAD: ${{ vars.SECURE_HSTS_PRELOAD }}
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: ${{ vars.SECURE_HSTS_INCLUDE_SUBDOMAINS }}
+      SECURE_CONTENT_TYPE_NOSNIFF: ${{ vars.SECURE_CONTENT_TYPE_NOSNIFF }}
+      SECURE_SESSION_COOKIE: ${{ vars.SECURE_SESSION_COOKIE }}
+      SECURE_CSRF_COOKIE: ${{ vars.SECURE_CSRF_COOKIE }}
+      SECURE_REFERRER_POLICY: ${{ vars.SECURE_REFERRER_POLICY }}
+
+      # JWT settings
+      JWT_ACCESS_TOKEN_LIFETIME_DAYS: ${{ vars.JWT_ACCESS_TOKEN_LIFETIME_DAYS }}
+      JWT_REFRESH_TOKEN_LIFETIME_DAYS: ${{ vars.JWT_REFRESH_TOKEN_LIFETIME_DAYS }}
+  
+      # Logger settings
+      LOGGER_CONSOLE_LEVEL: ${{ vars.LOGGER_CONSOLE_LEVEL }}
+      LOGGER_FILE_LEVEL: ${{ vars.LOGGER_FILE_LEVEL }}
 
     services:
       postgres:
