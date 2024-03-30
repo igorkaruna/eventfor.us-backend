@@ -28,7 +28,10 @@ class TestLogoutView(BaseTest):
         )
 
         # then
-        self._common_check(response, expected_status=204, expected_content_type=None)
+        self._common_check(response, expected_status=200)
+
+        response_data = response.json()
+        assert response_data["detail"] == "Refresh token was successfully blacklisted."
 
     def test__logout_invalid_refresh_token__failed(self, api_client: APIClient) -> None:
         # when
