@@ -1,0 +1,52 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: eventfor.us-backend
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH environment
+        run: |
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/id_rsa.pub
+          chmod 600 $HOME/.ssh/id_rsa
+          chmod 644 $HOME/.ssh/id_rsa.pub
+          ssh-keyscan -H ${{ secrets.GCP_EXTERNAL_IP }} >> $HOME/.ssh/known_hosts
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deployment
+        run: |
+          gcloud compute ssh --quiet --zone ${{ secrets.GCP_ZONE }} ${{ secrets.GCP_INSTANCE }} \
+          --ssh-key-file $HOME/.ssh/id_rsa \
+          --command "cd /opt/shared-directory/eventfor.us-backend && \
+            git fetch --all && \
+            git reset --hard origin/master && \
+            docker compose -f docker-compose.prod.yaml build --no-cache && \
+            docker compose -f docker-compose.prod.yaml up -d"
+
+      - name: Cleanup SSH environment
+        if: always()
+        run: |
+          rm -rf $HOME/.ssh
