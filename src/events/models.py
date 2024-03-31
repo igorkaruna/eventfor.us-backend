@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from events.constants import EventStatus
+from events.managers import EventManager
 from users.models import User
 
 
@@ -32,6 +33,8 @@ class Event(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    objects = EventManager()
 
     class Meta:
         verbose_name: str = "event"

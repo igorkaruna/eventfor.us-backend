@@ -1,7 +1,7 @@
 from typing import Optional
 
-from django.db.models import Count, F, QuerySet
-from django.db.models.functions import TruncMonth
+from django.db.models import Case, CharField, Count, ExpressionWrapper, F, QuerySet, Value, When, fields
+from django.db.models.functions import ExtractDay, TruncMonth
 from django.utils import timezone
 
 from base.repositories import BaseRepository, ModelType
@@ -14,11 +14,41 @@ class EventRepository(BaseRepository[Event]):
 
     @classmethod
     def get_all(cls) -> QuerySet[ModelType]:
-        return cls.model.objects.select_related("creator", "category").all()
+        return cls.model.objects.with_related().all()
 
     @classmethod
     def get_events_with_attendees_count(cls) -> QuerySet:
-        return cls.model.objects.annotate(attendees_count=Count("attendees")).select_related("creator", "category")
+        return cls.model.objects.with_related().annotate(attendees_count=Count("attendees"))
+
+    @classmethod
+    def get_monthly_attendance_statistics(cls) -> QuerySet:
+        return (
+            EventAttendance.objects.annotate(month=TruncMonth("timestamp"))
+            .values("month")
+            .annotate(total_attendees=Count("user"))
+            .order_by("month")
+        )
+
+    @classmethod
+    def get_event_duration_analysis(cls) -> QuerySet:
+        return (
+            cls.model.objects.annotate(
+                duration_days=ExpressionWrapper(
+                    F("end_date") - F("start_date"),
+                    output_field=fields.DurationField(),
+                ),
+                duration_days_extracted=ExtractDay("duration_days"),
+                duration_category=Case(
+                    When(duration_days_extracted__lte=1, then=Value("Short")),
+                    When(duration_days_extracted__lte=7, then=Value("Medium")),
+                    default=Value("Long"),
+                    output_field=CharField(),
+                ),
+            )
+            .values("duration_category")
+            .annotate(total=Count("id"))
+            .order_by("-duration_category")
+        )
 
     @classmethod
     def get_monthly_event_creation_statistics(cls) -> QuerySet:
@@ -32,9 +62,9 @@ class EventRepository(BaseRepository[Event]):
     @classmethod
     def get_open_event_for_attendance(cls, event_id: str) -> Optional[Event]:
         return (
-            cls.model.objects.annotate(attendees_count=Count("attendees"))
+            cls.model.objects.with_related()
+            .annotate(attendees_count=Count("attendees"))
             .filter(id=event_id, start_date__gt=timezone.now(), attendees_count__lt=F("capacity"))
-            .select_related("creator", "category")
             .first()
         )
 
