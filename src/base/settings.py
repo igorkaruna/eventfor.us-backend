@@ -148,7 +148,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {detail}",
+            "format": "{levelname} {asctime} {module}",
             "style": "{",
         },
     },
@@ -168,7 +168,7 @@ LOGGING = {
     "loggers": {
         "django.request": {
             "handlers": ["console"] if DEBUG else ["file"],
-            "level": "DEBUG" if DEBUG else "INFO",
+            "level": LOGGER_CONFIGURATION["CONSOLE_LEVEL"] if DEBUG else LOGGER_CONFIGURATION["FILE_LEVEL"],
             "propagate": True,
         },
     },
@@ -187,7 +187,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": env.int("PAGE_SIZE"),
 }
 
-if not DEBUG:
+if not DEBUG or DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)
 
 # JWT settings

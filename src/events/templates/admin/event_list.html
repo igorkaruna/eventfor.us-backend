@@ -1,0 +1,16 @@
+{% extends "admin/change_list.html" %}
+
+
+{% block result_list %}
+    <div class="stats">
+        <h2>Monthly Attendance Statistics</h2>
+        <ul>
+            {{ cl.model_admin.get_monthly_attendance_statistics }}
+        </ul>
+        <h2>Event Duration Analysis</h2>
+        <ul>
+            {{ cl.model_admin.get_event_duration_analysis }}
+        </ul>
+    </div>
+    {{ block.super }}
+{% endblock %}
