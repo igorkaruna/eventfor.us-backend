@@ -187,7 +187,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": env.int("PAGE_SIZE"),
 }
 
-if not DEBUG or DEBUG:
+if not DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)
 
 # JWT settings

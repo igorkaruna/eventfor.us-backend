@@ -4,7 +4,6 @@ from typing import Callable
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, JsonResponse
 from django.utils.deprecation import MiddlewareMixin
-from rest_framework.response import Response
 
 
 logger = logging.getLogger(__name__)
