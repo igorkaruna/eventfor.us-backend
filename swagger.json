@@ -1,0 +1,607 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Your API Title",
+    "description": "API description",
+    "version": "v1"
+  },
+  "host": "0.0.0.0:8000",
+  "schemes": [
+    "http"
+  ],
+  "basePath": "/",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "Basic": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "Basic": []
+    }
+  ],
+  "paths": {
+    "/events/": {
+      "get": {
+        "operationId": "events_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "creator",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "category",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "location",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_date_gte",
+            "in": "query",
+            "description": "start_date_gte",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Event"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "post": {
+        "operationId": "events_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "parameters": []
+    },
+    "/events/{id}/": {
+      "get": {
+        "operationId": "events_read",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "put": {
+        "operationId": "events_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "patch": {
+        "operationId": "events_partial_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "delete": {
+        "operationId": "events_delete",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A UUID string identifying this event.",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ]
+    },
+    "/events/{id}/attend/": {
+      "post": {
+        "operationId": "events_attend",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Attendance status successfully updated",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string",
+                  "example": "Attendance reserved."
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A UUID string identifying this event.",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ]
+    },
+    "/events/{id}/toggle_save/": {
+      "post": {
+        "operationId": "events_toggle_save",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Event save status successfully toggled",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string",
+                  "example": "Event saved successfully."
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "events"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A UUID string identifying this event.",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ]
+    },
+    "/users/signin/": {
+      "post": {
+        "operationId": "users_signin_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserSignIn"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UserSignIn"
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "parameters": []
+    },
+    "/users/signup/": {
+      "post": {
+        "operationId": "users_signup_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserSignUp"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UserSignUp"
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "parameters": []
+    },
+    "/users/logout/": {
+      "post": {
+        "operationId": "users_logout_create",
+        "description": "No content",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogout"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/saved_events/": {
+      "get": {
+        "operationId": "users_saved_events_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Event"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "parameters": []
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": [
+        "email",
+        "first_name",
+        "last_name"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "format": "email",
+          "maxLength": 254,
+          "minLength": 1
+        },
+        "first_name": {
+          "title": "First name",
+          "type": "string",
+          "maxLength": 30,
+          "minLength": 1
+        },
+        "last_name": {
+          "title": "Last name",
+          "type": "string",
+          "maxLength": 30,
+          "minLength": 1
+        }
+      }
+    },
+    "Event": {
+      "required": [
+        "category",
+        "name",
+        "location",
+        "capacity",
+        "description",
+        "start_date",
+        "end_date"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+},
+"creator": {
+"$ref": "#/definitions/User"
+},
+"category": {
+"title": "Category",
+"type": "string",
+"format": "uuid"
+},
+"name": {
+"title": "Name",
+"type": "string",
+"maxLength": 255,
+"minLength": 1
+},
+"status": {
+"title": "Status",
+"type": "string",
+"enum": [
+"canceled",
+"completed",
+"created",
+"ongoing"
+]
+},
+"location": {
+"title": "Location",
+"type": "string",
+"maxLength": 255,
+"minLength": 1
+},
+"capacity": {
+"title": "Capacity",
+"type": "integer",
+"maximum": 123,
+"minimum": 0
+},
+"description": {
+"title": "Description",
+"type": "string",
+"minLength": 1
+},
+"start_date": {
+"title": "Start date",
+"type": "string",
+"format": "date"
+},
+"end_date": {
+"title": "End date",
+"type": "string",
+"format": "date"
+},
+"created_at": {
+"title": "Created at",
+"type": "string",
+"format": "date-time",
+"readOnly": true
+}
+}
+},
+"UserSignIn": {
+"required": [
+"email",
+"password"
+],
+"type": "object",
+"properties": {
+"email": {
+"title": "Email",
+"type": "string"
+},
+"password": {
+"title": "Password",
+"type": "string"
+}
+}
+},
+"UserSignUp": {
+"required": [
+"email",
+"first_name",
+"last_name",
+"password"
+],
+"type": "object",
+"properties": {
+"email": {
+"title": "Email",
+"type": "string",
+"format": "email",
+"maxLength": 254,
+"minLength": 1
+},
+"first_name": {
+"title": "First name",
+"type": "string",
+"maxLength": 30,
+"minLength": 1
+},
+"last_name": {
+"title": "Last name",
+"type": "string",
+"maxLength": 30,
+"minLength": 1
+},
+"password": {
+"title": "Password",
+"type": "string",
+"maxLength": 128,
+"minLength": 1
+}
+}
+},
+"UserLogout": {
+"required": [
+"refresh_token"
+],
+"type": "object",
+"properties": {
+"refresh_token": {
+"title": "Refresh token",
+"type": "string",
+"minLength": 1
+}
+}
+}
+}
+}
