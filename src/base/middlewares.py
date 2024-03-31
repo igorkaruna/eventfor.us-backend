@@ -4,7 +4,6 @@ from typing import Callable
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 from django.utils.deprecation import MiddlewareMixin
-from rest_framework import status
 from rest_framework.response import Response
 
 
@@ -22,9 +21,9 @@ class ExceptionHandlingMiddleware(MiddlewareMixin):
         try:
             response = self.get_response(request)
             logger.info(f"Response status: {response.status_code} for request to {request.path}")
-        except Exception as e:
-            logger.error(f"Exception encountered during request to {request.path}: {e}")
-            response = self.process_exception(request, e)
+        except Exception as ex:
+            logger.error(f"Exception encountered during request to {request.path}: {ex}")
+            response = self.process_exception(request, ex)
 
         return response
 
@@ -36,8 +35,11 @@ class ExceptionHandlingMiddleware(MiddlewareMixin):
                 "detail": "Invalid request parameters.",
                 "errors": error_details,
             }
-            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+            status_code = 400
+
         else:
             logger.exception(f"Unhandled exception: {exception}")
             response_data = {"detail": "Internal server error."}
-            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            status_code = 500
+
+        return Response(response_data, status=status_code)

@@ -11,7 +11,7 @@ from users.serializers import UserSerializer
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model: Model = EventCategory
-        fields: tuple[str, ...] = ("id", "name", "description")
+        fields = ("id", "name", "description")
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model: Model = Event
-        fields: tuple[str, ...] = (
+        fields = (
             "id",
             "creator",
             "category",
@@ -36,7 +36,7 @@ class EventSerializer(serializers.ModelSerializer):
             "end_date",
             "created_at",
         )
-        read_only_fields: tuple[str, ...] = ("id", "creator", "created_at")
+        read_only_fields = ("id", "creator", "created_at")
 
     def to_representation(self, instance: Event) -> Dict[str, Any]:
         representation: Dict[str, Any] = super(EventSerializer, self).to_representation(instance)

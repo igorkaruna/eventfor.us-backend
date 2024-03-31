@@ -6,8 +6,8 @@ from events.models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_filter: tuple[str, ...] = ("is_active", "is_verified", "is_superuser")
-    list_display: tuple[str, ...] = (
+    list_filter = ("is_active", "is_verified", "is_superuser")
+    list_display = (
         "email",
         "first_name",
         "last_name",
@@ -16,10 +16,10 @@ class UserAdmin(BaseUserAdmin):
         "is_superuser",
     )
 
-    search_fields: tuple[str, ...] = ("email", "first_name", "last_name")
-    ordering: tuple[str, ...] = ("email",)
+    search_fields = ("email", "first_name", "last_name")
+    ordering = ("email",)
 
-    fieldsets: tuple[tuple[str, dict], ...] = (
+    fieldsets: [tuple[str, dict], ...] = (
         (
             None,
             {"fields": ("email", "password")},

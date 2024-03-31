@@ -25,7 +25,6 @@ class LogoutView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         refresh_token = serializer.validated_data["refresh_token"]
         RefreshToken(token=refresh_token).blacklist()
         return build_response(detail="Refresh token was successfully blacklisted.")
