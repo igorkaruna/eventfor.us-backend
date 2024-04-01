@@ -1,9 +1,14 @@
+from typing import Any, Dict
+
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.viewsets import ModelViewSet
 
+from base.settings import REDIS_CONFIGURATION
 from base.utils import build_response
 from events.constants import EventAttendanceIntent, EventSaveAction
 from events.filters import EventFilter
@@ -21,6 +26,10 @@ class EventViewSet(ModelViewSet):
 
     def perform_create(self, serializer: EventSerializer) -> None:
         serializer.save(creator=self.request.user)
+
+    @method_decorator(cache_page(timeout=REDIS_CONFIGURATION["TIMEOUT"], key_prefix="events_list"))
+    def list(self, request: Request, *args: str, **kwargs: Dict[str, Any]):
+        return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
     def attend(self, request: Request, pk: str = None) -> JsonResponse:

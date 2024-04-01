@@ -21,6 +21,17 @@ with env.prefixed("POSTGRES_"):
         "PORT": env.str("PORT"),
     }
 
+
+with env.prefixed("REDIS_"):
+    REDIS_CONFIGURATION = {
+        "BACKEND": env.str("BACKEND"),
+        "LOCATION": env.str("LOCATION"),
+        "OPTIONS": {
+            "CLIENT_CLASS": env.str("CLIENT_CLASS"),
+        },
+        "TIMEOUT": env.int("TIMEOUT"),
+    }
+
 with env.prefixed("JWT_"):
     JWT_CONFIGURATION = {
         "ACCESS_TOKEN_LIFETIME_DAYS": env.int("ACCESS_TOKEN_LIFETIME_DAYS"),
@@ -134,6 +145,16 @@ WSGI_APPLICATION = "base.wsgi.application"
 
 DATABASES = {
     "default": POSTGRES_DATABASE,
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
 }
 
 # Logger
