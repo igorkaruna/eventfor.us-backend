@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.viewsets import ModelViewSet
@@ -13,9 +14,14 @@ from base.utils import build_response
 from events.constants import EventAttendanceIntent, EventSaveAction
 from events.filters import EventFilter
 from events.permissions import IsEventCreator
-from events.repositories import EventRepository
-from events.serializers import EventSerializer
+from events.repositories import EventCategoryRepository, EventRepository
+from events.serializers import EventCategorySerializer, EventSerializer
 from users.repositories import UserProfileRepository
+
+
+class EventCategoryListView(ListAPIView):
+    queryset = EventCategoryRepository.get_all()
+    serializer_class = EventCategorySerializer
 
 
 class EventViewSet(ModelViewSet):
