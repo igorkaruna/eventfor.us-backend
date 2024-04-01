@@ -86,7 +86,7 @@ jobs:
     - name: Install dependencies
       run: poetry install --no-interaction --no-root
 
-    - name: Run quality checks
+    - name: Run linter
       run: |
         flake8 src --config src/.flake8
         python src/manage.py check
