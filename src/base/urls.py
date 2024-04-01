@@ -2,12 +2,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 from base import settings
-from events.urls import router as events_router
 
 
 urlpatterns = [
+    path("", include("events.urls")),
     path("admin/", admin.site.urls),
-    path("events/", include(events_router.urls)),
     path("users/", include("users.urls")),
 ]
 
