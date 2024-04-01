@@ -1,607 +1,775 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.1.0",
   "info": {
-    "title": "Your API Title",
-    "description": "API description",
-    "version": "v1"
+    "title": "eventfor.us-backend",
+    "description": "This API provides an interface for managing events and user interactions.",
+    "version": "0.1"
   },
-  "host": "0.0.0.0:8000",
-  "schemes": [
-    "http"
-  ],
-  "basePath": "/",
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "securityDefinitions": {
-    "Basic": {
-      "type": "basic"
-    }
-  },
-  "security": [
-    {
-      "Basic": []
-    }
-  ],
   "paths": {
+    "/categories/": {
+      "get": {
+        "operationId": "categories_list",
+        "tags": [
+          "Categories"
+        ],
+        "summary": "List all event categories",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "next": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "previous": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "results"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/events/": {
       "get": {
         "operationId": "events_list",
-        "description": "",
+        "tags": ["Events"],
+        "summary": "List all events",
         "parameters": [
           {
             "name": "creator",
             "in": "query",
             "description": "creator",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "category",
             "in": "query",
             "description": "category",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "location",
             "in": "query",
             "description": "location",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "start_date_gte",
             "in": "query",
             "description": "start_date_gte",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "page",
             "in": "query",
             "description": "A page number within the paginated result set.",
             "required": false,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
-            "schema": {
-              "required": [
-                "count",
-                "results"
-              ],
-              "type": "object",
-              "properties": {
-                "count": {
-                  "type": "integer"
-                },
-                "next": {
-                  "type": "string",
-                  "format": "uri",
-                  "x-nullable": true
-                },
-                "previous": {
-                  "type": "string",
-                  "format": "uri",
-                  "x-nullable": true
-                },
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Event"
-                  }
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "next": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "previous": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "results"
+                  ]
                 }
               }
             }
           }
-        },
-        "tags": [
-          "events"
-        ]
+        }
       },
       "post": {
         "operationId": "events_create",
-        "description": "",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Event"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/Event"
+        "tags": ["Events"],
+        "summary": "Create an event",
+        "requestBody": {
+          "description": "Event to be created",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
             }
           }
         },
-        "tags": [
-          "events"
-        ]
-      },
-      "parameters": []
+        "responses": {
+          "201": {
+            "description": "Event created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
     },
     "/events/{id}/": {
       "get": {
-        "operationId": "events_read",
-        "description": "",
-        "parameters": [],
+        "operationId": "getEventById",
+        "tags": ["Events"],
+        "summary": "Retrieves details of a specific event.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Unique identifier of the event."
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/Event"
+            "description": "Successful response with the details of a specific event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
+        }
       },
       "put": {
         "operationId": "events_update",
-        "description": "",
+        "tags": ["Events"],
+        "summary": "Update an event",
+        "requestBody": {
+          "description": "Event data to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        },
         "parameters": [
           {
-            "name": "data",
-            "in": "body",
+            "name": "id",
+            "in": "path",
+            "description": "A UUID string identifying this event.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Event"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/Event"
+            "description": "Event successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
+        }
       },
       "patch": {
         "operationId": "events_partial_update",
-        "description": "",
+        "tags": ["Events"],
+        "summary": "Partially update an event",
+        "requestBody": {
+          "description": "Part of event data to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        },
         "parameters": [
           {
-            "name": "data",
-            "in": "body",
+            "name": "id",
+            "in": "path",
+            "description": "A UUID string identifying this event.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Event"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/Event"
+            "description": "Event successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
+        }
       },
       "delete": {
         "operationId": "events_delete",
-        "description": "",
-        "parameters": [],
+        "tags": ["Events"],
+        "summary": "Delete an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "A UUID string identifying this event.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Event successfully deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "A UUID string identifying this event.",
-          "required": true,
-          "type": "string",
-          "format": "uuid"
         }
-      ]
+      }
     },
     "/events/{id}/attend/": {
       "post": {
         "operationId": "events_attend",
-        "description": "",
-        "parameters": [],
+        "tags": ["Events"],
+        "summary": "Attend an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "A UUID string identifying this event.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Attendance status successfully updated",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "detail": {
-                  "type": "string",
-                  "example": "Attendance reserved."
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "Attendance reserved."
+                    }
+                  }
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "A UUID string identifying this event.",
-          "required": true,
-          "type": "string",
-          "format": "uuid"
         }
-      ]
+      }
     },
     "/events/{id}/toggle_save/": {
       "post": {
         "operationId": "events_toggle_save",
-        "description": "",
-        "parameters": [],
+        "tags": ["Events"],
+        "summary": "Toggle save status for an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "A UUID string identifying this event.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Event save status successfully toggled",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "detail": {
-                  "type": "string",
-                  "example": "Event saved successfully."
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "example": "Event saved successfully."
+                    }
+                  }
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
-        },
-        "tags": [
-          "events"
-        ]
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "A UUID string identifying this event.",
-          "required": true,
-          "type": "string",
-          "format": "uuid"
         }
-      ]
+      }
     },
     "/users/signin/": {
       "post": {
         "operationId": "users_signin_create",
-        "description": "",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserSignIn"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/UserSignIn"
+        "tags": ["Users"],
+        "summary": "User sign-in",
+        "requestBody": {
+          "description": "User sign-in data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSignIn"
+              }
             }
           }
         },
-        "tags": [
-          "users"
-        ]
-      },
-      "parameters": []
+        "responses": {
+          "200": {
+            "description": "User signed in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refresh": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYwMzI3OTIyNywianRpIjoiZjllZGFmYzE2YjllNDc1YWE4YjQyNTI1ZTI4YjkxNTEiLCJ1c2VyX2lkIjoxfQ.S5P0Gam9L2OxYnHs5UagUJnT8ZcX4q1p5pebQl2Cs8Q"
+                    },
+                    "access": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eypeIjoiYWNjZXNzIiwiZXhwIjoxNjAzMjM1NjI3LCJqdGkiOiI2Y2I1N2RkYTVlMzQ0Y2NmODlkYmRjNmExNjRmMDRjNiIsInVzZXJfaWQiOjF9.kJH5nqKl5w8cXmX8ghotTl1R4TQrH9Y7P2NzG5StjtU"
+                    }
+                  },
+                  "required": [
+                    "refresh",
+                    "access"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
     },
     "/users/signup/": {
       "post": {
         "operationId": "users_signup_create",
-        "description": "",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserSignUp"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/UserSignUp"
+        "tags": ["Users"],
+        "summary": "User sign-up",
+        "requestBody": {
+          "description": "User sign-up data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSignUp"
+              }
             }
           }
         },
-        "tags": [
-          "users"
-        ]
-      },
-      "parameters": []
+        "responses": {
+          "201": {
+            "description": "User signed up successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSignUp"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
     },
     "/users/logout/": {
       "post": {
         "operationId": "users_logout_create",
-        "description": "No content",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserLogout"
+        "tags": ["Users"],
+        "summary": "User logout",
+        "requestBody": {
+          "description": "User logout data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogout"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "204": {
-            "description": ""
+            "description": "User logged out successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           }
-        },
-        "tags": [
-          "users"
-        ]
+        }
       }
     },
     "/users/saved_events/": {
       "get": {
         "operationId": "users_saved_events_list",
-        "description": "",
+        "tags": ["Users"],
+        "summary": "List saved events for a user",
         "parameters": [
           {
             "name": "page",
             "in": "query",
             "description": "A page number within the paginated result set.",
             "required": false,
-            "type": "integer"
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "next": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "previous": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "results"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EventCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "first_name",
+          "last_name"
+        ]
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "creator": {
+            "$ref": "#/components/schemas/User"
+          },
+          "category": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "canceled",
+              "completed",
+              "created",
+              "ongoing"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "category",
+          "name",
+          "location",
+          "capacity",
+          "description",
+          "start_date",
+          "end_date"
+        ]
+      },
+      "UserSignIn": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserSignUp": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "first_name",
+          "last_name",
+          "password"
+        ]
+      },
+      "UserLogout": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ]
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request parameters.",
+        "content": {
+          "application/json": {
             "schema": {
-              "required": [
-                "count",
-                "results"
-              ],
               "type": "object",
               "properties": {
-                "count": {
-                  "type": "integer"
-                },
-                "next": {
+                "detail": {
                   "type": "string",
-                  "format": "uri",
-                  "x-nullable": true
+                  "example": "Invalid request parameters."
                 },
-                "previous": {
-                  "type": "string",
-                  "format": "uri",
-                  "x-nullable": true
-                },
-                "results": {
+                "errors": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/Event"
+                    "type": "string",
+                    "example": "Sample error"
                   }
                 }
               }
             }
           }
-        },
-        "tags": [
-          "users"
-        ]
+        }
       },
-      "parameters": []
-    }
-  },
-  "definitions": {
-    "User": {
-      "required": [
-        "email",
-        "first_name",
-        "last_name"
-      ],
-      "type": "object",
-      "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true
-        },
-        "email": {
-          "title": "Email",
-          "type": "string",
-          "format": "email",
-          "maxLength": 254,
-          "minLength": 1
-        },
-        "first_name": {
-          "title": "First name",
-          "type": "string",
-          "maxLength": 30,
-          "minLength": 1
-        },
-        "last_name": {
-          "title": "Last name",
-          "type": "string",
-          "maxLength": 30,
-          "minLength": 1
+      "NotFound": {
+        "description": "The resource was not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string",
+                  "example": "The resource was not found."
+                }
+              }
+            }
+          }
         }
       }
-    },
-    "Event": {
-      "required": [
-        "category",
-        "name",
-        "location",
-        "capacity",
-        "description",
-        "start_date",
-        "end_date"
-      ],
-      "type": "object",
-      "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true
-},
-"creator": {
-"$ref": "#/definitions/User"
-},
-"category": {
-"title": "Category",
-"type": "string",
-"format": "uuid"
-},
-"name": {
-"title": "Name",
-"type": "string",
-"maxLength": 255,
-"minLength": 1
-},
-"status": {
-"title": "Status",
-"type": "string",
-"enum": [
-"canceled",
-"completed",
-"created",
-"ongoing"
-]
-},
-"location": {
-"title": "Location",
-"type": "string",
-"maxLength": 255,
-"minLength": 1
-},
-"capacity": {
-"title": "Capacity",
-"type": "integer",
-"maximum": 123,
-"minimum": 0
-},
-"description": {
-"title": "Description",
-"type": "string",
-"minLength": 1
-},
-"start_date": {
-"title": "Start date",
-"type": "string",
-"format": "date"
-},
-"end_date": {
-"title": "End date",
-"type": "string",
-"format": "date"
-},
-"created_at": {
-"title": "Created at",
-"type": "string",
-"format": "date-time",
-"readOnly": true
-}
-}
-},
-"UserSignIn": {
-"required": [
-"email",
-"password"
-],
-"type": "object",
-"properties": {
-"email": {
-"title": "Email",
-"type": "string"
-},
-"password": {
-"title": "Password",
-"type": "string"
-}
-}
-},
-"UserSignUp": {
-"required": [
-"email",
-"first_name",
-"last_name",
-"password"
-],
-"type": "object",
-"properties": {
-"email": {
-"title": "Email",
-"type": "string",
-"format": "email",
-"maxLength": 254,
-"minLength": 1
-},
-"first_name": {
-"title": "First name",
-"type": "string",
-"maxLength": 30,
-"minLength": 1
-},
-"last_name": {
-"title": "Last name",
-"type": "string",
-"maxLength": 30,
-"minLength": 1
-},
-"password": {
-"title": "Password",
-"type": "string",
-"maxLength": 128,
-"minLength": 1
-}
-}
-},
-"UserLogout": {
-"required": [
-"refresh_token"
-],
-"type": "object",
-"properties": {
-"refresh_token": {
-"title": "Refresh token",
-"type": "string",
-"minLength": 1
-}
-}
-}
-}
+    }
+  }
 }
