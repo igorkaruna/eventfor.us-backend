@@ -23,6 +23,10 @@ class EventCategoryListView(ListAPIView):
     queryset = EventCategoryRepository.get_all()
     serializer_class = EventCategorySerializer
 
+    @method_decorator(cache_page(timeout=REDIS_CONFIGURATION["TIMEOUT"], key_prefix="event_category_list"))
+    def list(self, request: Request, *args: str, **kwargs: Dict[str, Any]):
+        return super().list(request, *args, **kwargs)
+
 
 class EventViewSet(ModelViewSet):
     queryset = EventRepository.get_all()
