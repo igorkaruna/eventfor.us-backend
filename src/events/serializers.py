@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from django.core.exceptions import ValidationError
 from django.db.models import Model
 from rest_framework import serializers
 
@@ -37,6 +38,16 @@ class EventSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = ("id", "creator", "created_at")
+
+    def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        instance = Event(**data)
+
+        try:
+            instance.clean()
+        except ValidationError as ex:
+            raise serializers.ValidationError(ex.messages)
+
+        return data
 
     def to_representation(self, instance: Event) -> Dict[str, Any]:
         representation: Dict[str, Any] = super(EventSerializer, self).to_representation(instance)
