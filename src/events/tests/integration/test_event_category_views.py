@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 class TestListEventCategoryView(BaseTest):
     endpoint = reverse("categories_list")
 
-    def test__list_categories_success(self, api_client: APIClient) -> None:
+    def test__list_categories__success(self, api_client: APIClient) -> None:
         # given
         categories = [EventCategoryFactory(name=f"Category {number}") for number in range(5)]
 

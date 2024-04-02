@@ -235,7 +235,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
 
-    def test_delete_event_by_creator(self, api_client: APIClient) -> None:
+    def test__delete_event_by_creator__success(self, api_client: APIClient) -> None:
         # given
         creator = UserFactory()
         event = EventFactory(creator=creator)
@@ -259,7 +259,7 @@ class TestEvent(BaseTest):
 
         assert Event.objects.count() == 0
 
-    def test_delete_event_not_by_creator(self, api_client: APIClient) -> None:
+    def test__delete_event_not_by_creator__faile(self, api_client: APIClient) -> None:
         # given
         creator = UserFactory()
         event = EventFactory(creator=creator)
@@ -283,7 +283,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
 
-    def test_attend_event__authenticated_user__success(self, api_client: APIClient) -> None:
+    def test__attend_event__authenticated_user__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
         event = EventFactory()
@@ -328,7 +328,7 @@ class TestEvent(BaseTest):
         response_data_cancel = response_cancel.json()
         assert response_data_cancel["detail"] == f"Attendance {EventAttendanceIntent.Canceled.lower()}."
 
-    def test_event_not_open_for_attendance(self, api_client: APIClient):
+    def test__event_not_open_for_attendance__failed(self, api_client: APIClient):
         # given
         user = UserFactory()
         event = EventFactory(
@@ -351,7 +351,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "The event is not open for attendance."
 
-    def test_toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
+    def test__toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
         event = EventFactory()
@@ -392,7 +392,7 @@ class TestEvent(BaseTest):
         response_data_unsave = response_unsave.json()
         assert response_data_unsave["detail"] == f"Event {EventSaveAction.Removed.lower()} successfully."
 
-    def test_toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
+    def test__toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
         # given
         event = EventFactory()
 

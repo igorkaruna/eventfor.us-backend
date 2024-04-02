@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
+from rest_framework.request import Request
 
 from events.models import Event, EventAttendance, EventCategory
 from events.repositories import EventRepository
@@ -10,18 +12,18 @@ from events.repositories import EventRepository
 class EventAdmin(admin.ModelAdmin):
     change_list_template = "admin/event_list.html"
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: Request) -> QuerySet:
         return EventRepository.get_events_with_attendees_count()
 
-    def attendees_count(self, obj):
+    def attendees_count(self, obj: Event) -> int:
         return obj.attendees_count
 
-    def creator_link(self, obj):
+    def creator_link(self, obj: Event) -> str:
         link = reverse("admin:users_user_change", args=[obj.creator_id])
         return format_html('<a href="{}">{}</a>', link, obj.creator)
 
     @classmethod
-    def get_monthly_attendance_statistics(cls):
+    def get_monthly_attendance_statistics(cls) -> str:
         stats = EventRepository.get_monthly_attendance_statistics()
         return (
             format_html_join(
@@ -33,7 +35,7 @@ class EventAdmin(admin.ModelAdmin):
         )
 
     @classmethod
-    def get_event_duration_analysis(cls):
+    def get_event_duration_analysis(cls) -> str:
         analysis = EventRepository.get_event_duration_analysis()
         return (
             format_html_join(

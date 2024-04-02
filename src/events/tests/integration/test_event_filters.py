@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 class TestEventFilter(BaseTest):
     endpoint = reverse("event-list")
 
-    def test_filter_by_category(self, api_client: APIClient) -> None:
+    def test__filter_by_category__success(self, api_client: APIClient) -> None:
         # given
         sports_category = EventCategoryFactory(name="Sports")
         networking_category = EventCategoryFactory(name="Networking")
@@ -33,7 +33,7 @@ class TestEventFilter(BaseTest):
         response_data = response.json()["results"]
         assert len(response_data) == 1, f"Expected only one event in category: {sports_category.name}"
 
-    def test_filter_by_creator(self, api_client: APIClient) -> None:
+    def test__filter_by_creator__success(self, api_client: APIClient) -> None:
         # given
         creator_john = UserFactory(first_name="John")
         creator_emily = UserFactory(first_name="Emily")
@@ -53,7 +53,7 @@ class TestEventFilter(BaseTest):
         response_data = response.json()["results"]
         assert len(response_data) == 1, f"Expected only one event created by {creator_john.first_name}"
 
-    def test_filter_by_location_contains(self, api_client: APIClient) -> None:
+    def test__filter_by_location_contains__success(self, api_client: APIClient) -> None:
         # given
         for location in {"Paris, France", "Los Angeles, USA", "New York, USA"}:
             EventFactory(location=location)
@@ -70,7 +70,7 @@ class TestEventFilter(BaseTest):
         response_data = response.json()["results"]
         assert len(response_data) == 2, "Expected two events with location 'USA'"
 
-    def test_filter_by_start_date_gte(self, api_client: APIClient) -> None:
+    def test__filter_by_start_date_gte__success(self, api_client: APIClient) -> None:
         # given
         for start_date in {"2024-07-27", "2024-08-28"}:
             EventFactory(start_date=start_date)

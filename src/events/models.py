@@ -42,7 +42,7 @@ class Event(models.Model):
         verbose_name: str = "event"
         verbose_name_plural: str = "events"
 
-    def clean(self):
+    def clean(self) -> None:
         """
         Validates the event dates to ensure the start date precedes the end date.
 
