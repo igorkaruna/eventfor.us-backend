@@ -11,7 +11,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./src/logs:/app/src/logs
+      - .:/app
 
   postgres:
     image: postgres:16
@@ -31,7 +31,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./src/static:/src/static
+      - ./src/static:/app/src/static
       - ./configs/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./certificates/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
       - ./certificates/private_key.pem:/etc/ssl/private/private_key.pem:ro
