@@ -3,7 +3,14 @@
 
 ## Overview
 
-eventfor.us offers a robust backend solution for managing events seamlessly. Designed with flexibility in mind, it supports a wide range of event management tasks from creation to execution. Built using DRF, it ensures high performance, reliability, and scalability for event organizers and participants alike.
+**eventfor.us** offers a robust backend solution for managing events seamlessly. Designed with flexibility in mind, it supports a wide range of event management tasks from creation to execution. Built using DRF, it ensures high performance, reliability, and scalability for event organizers and participants alike.
+
+### Swagger
+For detailed API documentation and interactive exploration of the backend endpoints, visit:
+[https://eventfor.us/api/swagger/](https://eventfor.us/api/swagger/)
+
+### Backend Endpoints
+All backend endpoints for **eventfor.us** begin with the prefix `/api`, except for the Django admin interface which is accessible directly via `/admin`. This `/api` prefix is used for routing all API requests to the appropriate handlers within the application.
 
 ## Features
 
@@ -12,7 +19,7 @@ eventfor.us offers a robust backend solution for managing events seamlessly. Des
 - **Debugging Tools**: Integrated with Django Debug Toolbar for efficient debugging.
 - **Caching Mechanism**: django-redis setup for enhanced performance.
 - **Logging Requests**: django-request-logging for thorough request monitoring.
-- **JWT Authentication**: Secure your application with JWT-based authentication.
+- **JWT Authentication**: Secure your application ``with JWT-based authentication.
 
 ## CI/CD Pipeline
 
@@ -43,8 +50,8 @@ These automated workflows facilitate efficient deployments, ensuring that the pr
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Python 3.11
+- **Docker** & **Docker Compose**
+- **Python** 3.11
 
 ### Installation
 

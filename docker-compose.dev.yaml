@@ -13,7 +13,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - .:/src
+      - .:/app
 
   postgres:
     image: postgres:16

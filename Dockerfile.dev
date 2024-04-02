@@ -1,6 +1,6 @@
 FROM python:3.11-slim as base
 
-ENV APP_HOME=/src
+ENV APP_HOME=/app
 
 RUN apt-get update \
     && apt-get install -y build-essential netcat-openbsd \
@@ -24,6 +24,8 @@ WORKDIR $APP_HOME
 
 COPY --from=requirements-stage /tmp/requirements.txt $APP_HOME/
 RUN pip install --upgrade -r requirements.txt
+
+COPY . $APP_HOME
 
 COPY ./scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
