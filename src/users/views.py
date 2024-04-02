@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework.generics import CreateAPIView, GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -6,6 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from base.utils import build_response
 from events.serializers import EventSerializer
+from users.models import User
 from users.repositories import UserProfileRepository, UserRepository
 from users.serializers import LogoutSerializer, SignUpSerializer, UserSerializer
 
@@ -33,13 +35,13 @@ class LogoutView(GenericAPIView):
 class GetUserView(RetrieveAPIView):
     serializer_class = UserSerializer
 
-    def get_object(self):
+    def get_object(self) -> User:
         return UserRepository.get(id=self.kwargs.get("uuid"))
 
 
 class GetSavedEventsView(ListAPIView):
     serializer_class = EventSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         user = UserRepository.get(id=self.kwargs.get("uuid"))
         return UserProfileRepository.get_saved_events(user.profile)

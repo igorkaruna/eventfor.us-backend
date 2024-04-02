@@ -4,7 +4,9 @@ from events.models import EventCategory
 from events.repositories import EventCategoryRepository
 
 
-@pytest.mark.django_db
+pytestmark = pytest.mark.django_db
+
+
 def test_event_category_creation():
     # given
     name = "Sports"

@@ -92,6 +92,71 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "Authentication credentials were not provided."
 
+    @pytest.mark.parametrize(
+        "invalid_capacity, expected_error_message",
+        [
+            (-1, ["Ensure this value is greater than or equal to 0."]),
+            (100_000, ["Ensure this value is less than or equal to 10000."]),
+        ],
+    )
+    def test__create_event__invalid_capacity__failed(
+        self, api_client: APIClient, invalid_capacity: str, expected_error_message: list[str]
+    ) -> None:
+        # given
+        user = UserFactory()
+        event_category = EventCategoryFactory()
+
+        # when
+        api_client.force_authenticate(user)
+
+        with freezegun.freeze_time(datetime(2024, 5, 19, 16, 45)):
+            response = api_client.post(
+                self.endpoint,
+                data={
+                    "category": str(event_category.id),
+                    "name": "Test event",
+                    "location": "Test location",
+                    "capacity": invalid_capacity,
+                    "description": "Test description",
+                    "start_date": (datetime.now() + timedelta(days=1)).date().isoformat(),
+                    "end_date": (datetime.now() + timedelta(days=2)).date().isoformat(),
+                },
+            )
+
+        # then
+        self._common_check(response, expected_status=400)
+
+        response_data = response.json()
+        assert response_data["capacity"] == expected_error_message
+
+    def test__create_event_invalid_start_date__failed(self, api_client: APIClient) -> None:
+        # given
+        user = UserFactory()
+        event_category = EventCategoryFactory()
+
+        # when
+        api_client.force_authenticate(user)
+
+        with freezegun.freeze_time(datetime(2024, 5, 19, 16, 45)):
+            response = api_client.post(
+                self.endpoint,
+                data={
+                    "category": str(event_category.id),
+                    "name": "Test event",
+                    "location": "Test location",
+                    "capacity": 100,
+                    "description": "Test description",
+                    "start_date": (datetime.now() + timedelta(days=3)).date().isoformat(),
+                    "end_date": (datetime.now() + timedelta(days=2)).date().isoformat(),
+                },
+            )
+
+        # then
+        self._common_check(response, expected_status=400)
+
+        response_data = response.json()
+        assert response_data["start_date"] == ["The start date must be before the end date."]
+
     def test__list_events__success(self, api_client: APIClient) -> None:
         # given
         events = [EventFactory() for _ in range(5)]
@@ -170,7 +235,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
 
-    def test_delete_event_by_creator(self, api_client: APIClient) -> None:
+    def test__delete_event_by_creator__success(self, api_client: APIClient) -> None:
         # given
         creator = UserFactory()
         event = EventFactory(creator=creator)
@@ -194,7 +259,7 @@ class TestEvent(BaseTest):
 
         assert Event.objects.count() == 0
 
-    def test_delete_event_not_by_creator(self, api_client: APIClient) -> None:
+    def test__delete_event_not_by_creator__faile(self, api_client: APIClient) -> None:
         # given
         creator = UserFactory()
         event = EventFactory(creator=creator)
@@ -218,7 +283,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "You do not have permission to perform this action."
 
-    def test_attend_event__authenticated_user__success(self, api_client: APIClient) -> None:
+    def test__attend_event__authenticated_user__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
         event = EventFactory()
@@ -263,7 +328,7 @@ class TestEvent(BaseTest):
         response_data_cancel = response_cancel.json()
         assert response_data_cancel["detail"] == f"Attendance {EventAttendanceIntent.Canceled.lower()}."
 
-    def test_event_not_open_for_attendance(self, api_client: APIClient):
+    def test__event_not_open_for_attendance__failed(self, api_client: APIClient):
         # given
         user = UserFactory()
         event = EventFactory(
@@ -286,7 +351,7 @@ class TestEvent(BaseTest):
         response_data = response.json()
         assert response_data["detail"] == "The event is not open for attendance."
 
-    def test_toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
+    def test__toggle_save_event__authenticated_user__success(self, api_client: APIClient) -> None:
         # given
         user = UserFactory()
         event = EventFactory()
@@ -327,7 +392,7 @@ class TestEvent(BaseTest):
         response_data_unsave = response_unsave.json()
         assert response_data_unsave["detail"] == f"Event {EventSaveAction.Removed.lower()} successfully."
 
-    def test_toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
+    def test__toggle_save_event__unauthenticated_user__failed(self, api_client: APIClient) -> None:
         # given
         event = EventFactory()
 

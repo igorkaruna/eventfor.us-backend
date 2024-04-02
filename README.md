@@ -69,3 +69,29 @@ These automated workflows facilitate efficient deployments, ensuring that the pr
    docker-compose -f docker-compose.dev.yaml up --build
 
 4. Verify the installation by accessing the application at http://127.0.0.1:8000.
+
+## Running Tests Guide
+This guide outlines the steps to run tests both via Docker Compose and locally with Poetry for your project. It's essential to ensure that your testing environment mirrors your production environment as closely as possible to catch any discrepancies early. For this project, we use Docker containers for Postgres and Redis, which are critical components of our stack. These services are required by Django REST Framework (DRF) for database operations and caching, respectively. Running these containers during tests ensures that the testing environment can access these services, mimicking the production setup and ensuring accurate test results.
+
+### Via Docker Compose
+
+1. Open the **eventfor** container.
+2. Run the tests:
+   ```sh
+   pytest src
+
+### Locally with Poetry
+
+1. Adjust Environment Variables:
+   - Change `POSTGRES_HOST` to `localhost`.
+   - Change `REDIS_LOCATION` to `redis://localhost:6379/1`.
+2. Install dependencies:
+   ```sh
+   poetry lock
+   poetry install
+3. Start **Postgres** and **Redis** containers:
+   ```sh
+   docker-compose -f docker-compose.dev.yaml up --build postgres redis
+4. Run the tests:
+   ```sh
+   pytest src

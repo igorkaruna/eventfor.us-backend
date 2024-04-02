@@ -8,7 +8,9 @@ from events.tests.factories import EventCategoryFactory
 from users.tests.factories import UserFactory
 
 
-@pytest.mark.django_db
+pytestmark = pytest.mark.django_db
+
+
 def test_event_creation():
     # given
     creator = UserFactory()

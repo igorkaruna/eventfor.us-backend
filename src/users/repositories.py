@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db import transaction
+from django.db.models import QuerySet
 
 from base.repositories import BaseRepository
 from events.models import Event
@@ -31,7 +32,7 @@ class UserProfileRepository(BaseRepository[UserProfile]):
     model = UserProfile
 
     @classmethod
-    def get_saved_events(cls, profile: UserProfile) -> bool:
+    def get_saved_events(cls, profile: UserProfile) -> QuerySet:
         return profile.saved_events.all()
 
     @classmethod
